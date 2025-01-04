@@ -168,3 +168,71 @@ To verify everything is configured correctly:
 - **Separation:** Cleanly separate work and personal Git repositories.
 - **Security:** Manage multiple SSH keys with ease.
 - **Automation:** Avoid manual changes to Git configuration for every repo.
+
+## ❓ Common Questions
+
+### 1️⃣ Does this configuration support both GitLab and GitHub? 🤔
+Yes, absolutely! 🎉 This setup works for any Git hosting platform that uses SSH for authentication, including:
+- **GitHub**
+- **GitLab**
+- **Bitbucket**
+
+You just need to add the appropriate SSH key and host configuration in your `~/.ssh/config`. For example, for GitLab:
+```plaintext
+# GitLab Account
+Host gitlab-personal
+    HostName gitlab.com
+    User git
+    IdentityFile ~/.ssh/id_rsa_gitlab_personal
+```
+Then use the corresponding host (`gitlab-personal`) when cloning or interacting with your GitLab repositories:
+```bash
+git clone git@gitlab-personal:username/repo.git
+```
+
+---
+
+### 2️⃣ What if I forget to start the SSH agent? ⚡
+If you try to interact with a repository and get a **"Could not open a connection to your authentication agent"** error, it means the SSH agent isn't running. Simply start the agent with:
+```bash
+eval "$(ssh-agent -s)"
+```
+Then add your keys again:
+```bash
+ssh-add ~/.ssh/id_rsa_personal
+ssh-add ~/.ssh/id_rsa_work
+```
+
+To avoid doing this every time, you can automate it by adding the following to your `~/.bashrc` or `~/.zshrc`:
+```bash
+eval "$(ssh-agent -s)" > /dev/null
+ssh-add ~/.ssh/id_rsa_personal &>/dev/null
+ssh-add ~/.ssh/id_rsa_work &>/dev/null
+```
+
+---
+
+### 3️⃣ Can I use HTTPS instead of SSH? 🌐
+Yes, you can use HTTPS for Git, but it won't benefit from the SSH-specific configuration described in this guide. If you prefer HTTPS, you'll need to authenticate manually (or via a credential manager) for each account and repository.
+
+---
+
+
+### 4️⃣ How do I know which account is being used? 🕵️
+Run the following commands in your repository to check the active configuration:
+```bash
+git config --get user.name  # Shows the configured user name
+git config --get user.email # Shows the configured email
+```
+For SSH, you can check which key is being used by testing the SSH connection:
+```bash
+ssh -T github-personal
+```
+The response will tell you which account is being authenticated.
+
+---
+
+### 5️⃣ Can I use this setup on Windows? 🪟
+Yes, this setup works on **Windows** using **WSL (Windows Subsystem for Linux)** or Git Bash. The only difference might be the file paths:
+- Use `/c/Users/YourName/.ssh/` instead of `~/.ssh/` for Git Bash.
+- WSL follows the same structure as Linux (`~/.ssh/`).
