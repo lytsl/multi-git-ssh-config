@@ -25,13 +25,22 @@ The goal is to:
 
 ### 1️⃣ Generate SSH Keys 🔑
 Run the following command to generate an SSH key for each Git account:
-```bash
-ssh-keygen -t rsa -b 4096 -C "youremail@example.com"
+```shell
+ssh-keygen -t ed25519 -C "your_email@example.com"
 ```
 
+> [!NOTE]
+> If you are using a legacy system that doesn't support the Ed25519 algorithm, use:
+>
+> ```shell
+> ssh-keygen -t rsa -b 4096 -C "your_email@example.com"
+> ```
+
+This creates a new SSH key, using the provided email as a label.
+
 - Save the key in a descriptive location:
-  - Personal account: `~/.ssh/id_rsa_personal`
-  - Work account: `~/.ssh/id_rsa_work`
+  - Personal account: `~/.ssh/id_personal`
+  - Work account: `~/.ssh/id_work`
 - Optionally, add a passphrase for extra security.
 
 ---
@@ -50,8 +59,8 @@ To use your SSH keys, you need to start the SSH agent and add your keys to it.
 
 2. Add your keys to the agent:
    ```bash
-   ssh-add ~/.ssh/id_rsa_personal
-   ssh-add ~/.ssh/id_rsa_work
+   ssh-add ~/.ssh/id_personal
+   ssh-add ~/.ssh/id_work
    ```
 
 3. Verify that your keys are loaded:
@@ -73,13 +82,13 @@ Add entries for each Git account:
 Host github-personal
     HostName github.com
     User git
-    IdentityFile ~/.ssh/id_rsa_personal
+    IdentityFile ~/.ssh/id_personal
 
 # Work GitHub Account
 Host github-work
     HostName github.com
     User git
-    IdentityFile ~/.ssh/id_rsa_work
+    IdentityFile ~/.ssh/id_work
 ```
 
 Save and test each configuration:
@@ -113,7 +122,16 @@ Set up user-specific settings for each account using Git's `includeIf` directive
      ```plaintext
      [user]
          name = Your Personal Name
-         email = personal@example.com
+         email = personal@users.noreply.github.com
+         signingkey = ~/.ssh/id_personal.pub
+     [github]
+         user = personal-github-username
+     [gpg]
+         format = ssh
+     [commit]
+         gpgsign = true
+     [core]
+        sshCommand = ssh -i ~/.ssh/id_personal
      ```
    - For work:
      ```bash
@@ -122,7 +140,16 @@ Set up user-specific settings for each account using Git's `includeIf` directive
      ```plaintext
      [user]
          name = Your Work Name
-         email = work@example.com
+         email = work@users.noreply.github.com
+         signingkey = ~/.ssh/id_work.pub
+     [github]
+         user = work-github-username
+     [gpg]
+         format = ssh
+     [commit]
+         gpgsign = true
+     [core]
+        sshCommand = ssh -i ~/.ssh/id_work
      ```
 
 ---
@@ -183,7 +210,7 @@ You just need to add the appropriate SSH key and host configuration in your `~/.
 Host gitlab-personal
     HostName gitlab.com
     User git
-    IdentityFile ~/.ssh/id_rsa_gitlab_personal
+    IdentityFile ~/.ssh/id_gitlab_personal
 ```
 Then use the corresponding host (`gitlab-personal`) when cloning or interacting with your GitLab repositories:
 ```bash
@@ -199,15 +226,15 @@ eval "$(ssh-agent -s)"
 ```
 Then add your keys again:
 ```bash
-ssh-add ~/.ssh/id_rsa_personal
-ssh-add ~/.ssh/id_rsa_work
+ssh-add ~/.ssh/id_personal
+ssh-add ~/.ssh/id_work
 ```
 
 To avoid doing this every time, you can automate it by adding the following to your `~/.bashrc` or `~/.zshrc`:
 ```bash
 eval "$(ssh-agent -s)" > /dev/null
-ssh-add ~/.ssh/id_rsa_personal &>/dev/null
-ssh-add ~/.ssh/id_rsa_work &>/dev/null
+ssh-add ~/.ssh/id_personal &>/dev/null
+ssh-add ~/.ssh/id_work &>/dev/null
 ```
 
 ---
