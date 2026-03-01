@@ -23,7 +23,7 @@ The goal is to:
 
 ## 📋 Steps to Configure
 
-### 1️⃣ Generate SSH Keys 🔑
+### Generate SSH Keys 🔑
 Run the following command to generate an SSH key for each Git account:
 ```shell
 ssh-keygen -t ed25519 -C "your_email@example.com"
@@ -45,7 +45,31 @@ This creates a new SSH key, using the provided email as a label.
 
 ---
 
-### 2️⃣ Start the SSH Agent ⚡
+### Add SSH Keys to GitHub 🔐
+For GPG signing to work properly, you need to add each public key to GitHub **twice** - once as an "Authentication Key" and once as a "Signing Key".
+
+1. Copy your public key content:
+   ```bash
+   cat ~/.ssh/id_personal.pub
+   # or
+   cat ~/.ssh/id_work.pub
+   ```
+
+2. Go to **GitHub → Settings → SSH and GPG keys → New SSH key**
+   (https://github.com/settings/ssh/new)
+
+3. For each key, add it **twice**:
+   - **First time**: Select key type as **"Authentication Key"**
+   - **Second time**: Select key type as **"Signing Key"**
+
+4. Repeat this for both `id_personal.pub` and `id_work.pub`.
+
+> [!IMPORTANT]
+> This step is required for GPG-signed commits to work properly. Without adding the key as a "Signing Key", your commits will show as "unverified" on GitHub.
+
+---
+
+### Start the SSH Agent ⚡
 To use your SSH keys, you need to start the SSH agent and add your keys to it.
 
 1. Start the SSH agent:
@@ -71,7 +95,7 @@ To use your SSH keys, you need to start the SSH agent and add your keys to it.
 
 ---
 
-### 3️⃣ Configure SSH 🚀
+### Configure SSH 🚀
 Edit your SSH configuration file:
 ```bash
 nano ~/.ssh/config
@@ -99,7 +123,7 @@ ssh -T github-work
 
 ---
 
-### 4️⃣ Configure Git Settings ⚙️
+### Configure Git Settings ⚙️
 Set up user-specific settings for each account using Git's `includeIf` directive.
 
 1. Edit your global Git configuration:
@@ -154,7 +178,7 @@ Set up user-specific settings for each account using Git's `includeIf` directive
 
 ---
 
-### 5️⃣ Cloning Repositories 🌀
+### Cloning Repositories 🌀
 When cloning a repository, use the appropriate SSH alias:
 - Personal:
   ```bash
@@ -198,7 +222,7 @@ To verify everything is configured correctly:
 
 ## ❓ Common Questions
 
-### 1️⃣ Does this configuration support both GitLab and GitHub? 🤔
+### Does this configuration support both GitLab and GitHub? 🤔
 Yes, absolutely! 🎉 This setup works for any Git hosting platform that uses SSH for authentication, including:
 - **GitHub**
 - **GitLab**
@@ -219,7 +243,7 @@ git clone git@gitlab-personal:username/repo.git
 
 ---
 
-### 2️⃣ What if I forget to start the SSH agent? ⚡
+### What if I forget to start the SSH agent? ⚡
 If you try to interact with a repository and get a **"Could not open a connection to your authentication agent"** error, it means the SSH agent isn't running. Simply start the agent with:
 ```bash
 eval "$(ssh-agent -s)"
@@ -239,13 +263,13 @@ ssh-add ~/.ssh/id_work &>/dev/null
 
 ---
 
-### 3️⃣ Can I use HTTPS instead of SSH? 🌐
+### Can I use HTTPS instead of SSH? 🌐
 Yes, you can use HTTPS for Git, but it won't benefit from the SSH-specific configuration described in this guide. If you prefer HTTPS, you'll need to authenticate manually (or via a credential manager) for each account and repository.
 
 ---
 
 
-### 4️⃣ How do I know which account is being used? 🕵️
+### How do I know which account is being used? 🕵️
 Run the following commands in your repository to check the active configuration:
 ```bash
 git config --get user.name  # Shows the configured user name
@@ -259,7 +283,7 @@ The response will tell you which account is being authenticated.
 
 ---
 
-### 5️⃣ Can I use this setup on Windows? 🪟
+### Can I use this setup on Windows? 🪟
 Yes, this setup works on **Windows** using **WSL (Windows Subsystem for Linux)** or Git Bash. The only difference might be the file paths:
 - Use `/c/Users/YourName/.ssh/` instead of `~/.ssh/` for Git Bash.
 - WSL follows the same structure as Linux (`~/.ssh/`).
